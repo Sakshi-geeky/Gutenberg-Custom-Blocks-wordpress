@@ -1,99 +1,66 @@
 <?php
 /**
  * Plugin Name: Advanced Gutenberg Blocks Suite
- * Plugin URI: https://github.com/Sakshi-geeky/gutenberg-blocks
- * Description: Professional suite of advanced Gutenberg blocks featuring interactive data visualization, e-commerce product showcase, and social media integration blocks.
+ * Description: Professional suite of advanced Gutenberg blocks
  * Version: 1.0.0
  * Author: Sakshi Chavan
- * Author URI: https://github.com/Sakshi-geeky
- * License: GPL v2 or later
- * Text Domain: advanced-gutenberg-blocks
- * Requires at least: 6.0
- * Tested up to: 6.4
- * Requires PHP: 8.0
  */
 
 if (!defined('ABSPATH')) {
-    exit('Direct access denied.');
+    exit;
 }
 
-define('AGB_PLUGIN_FILE', __FILE__);
 define('AGB_PLUGIN_DIR', plugin_dir_path(__FILE__));
 define('AGB_PLUGIN_URL', plugin_dir_url(__FILE__));
 define('AGB_VERSION', '1.0.0');
 
 class AdvancedGutenbergBlocks {
-    private static $instance = null;
     
-    public static function get_instance() {
-        if (null === self::$instance) {
-            self::$instance = new self();
-        }
-        return self::$instance;
-    }
-    
-    private function __construct() {
+    public function __construct() {
         add_action('init', array($this, 'init'));
         add_action('enqueue_block_editor_assets', array($this, 'enqueue_editor_assets'));
-        add_action('enqueue_block_assets', array($this, 'enqueue_block_assets'));
         add_action('wp_enqueue_scripts', array($this, 'enqueue_frontend_assets'));
         add_filter('block_categories_all', array($this, 'register_block_category'));
-        add_action("init", array($this, "register_block_patterns"));
     }
     
     public function init() {
-        $blocks = array('data-visualization', 'product-showcase', 'social-integration');
-        
-        foreach ($blocks as $block) {
-            $block_path = AGB_PLUGIN_DIR . 'build/blocks/' . $block;
-            if (file_exists($block_path)) {
-                register_block_type($block_path);
+        if (function_exists('register_block_type')) {
+            $blocks = array('data-visualization', 'product-showcase', 'social-integration');
+            foreach ($blocks as $block) {
+                $block_path = AGB_PLUGIN_DIR . 'build/blocks/' . $block;
+                if (file_exists($block_path . '/block.json')) {
+                    register_block_type($block_path);
+                }
             }
         }
     }
     
     public function enqueue_editor_assets() {
-        $asset_file = AGB_PLUGIN_DIR . 'build/blocks/data-visualization/index.asset.php';
-        
-        if (file_exists($asset_file)) {
-            $asset = include $asset_file;
-        } else {
-            $asset = array(
-                'dependencies' => array('wp-blocks', 'wp-i18n', 'wp-element'),
-                'version' => AGB_VERSION
-            );
-        }
-        
-        wp_enqueue_script(
-            'agb-editor-script',
-            AGB_PLUGIN_URL . 'build/blocks/data-visualization/index.js',
-            $asset['dependencies'],
-            $asset['version'],
-            true
-        );
-    }
-    
-    public function enqueue_block_assets() {
-        if (file_exists(AGB_PLUGIN_DIR . 'build/style-index.css')) {
-            wp_enqueue_style(
-                'agb-blocks-style',
-                AGB_PLUGIN_URL . 'build/style-index.css',
-                array(),
-                AGB_VERSION
-            );
+        $blocks = array('data-visualization', 'product-showcase', 'social-integration');
+        foreach ($blocks as $block) {
+            $asset_file = AGB_PLUGIN_DIR . 'build/blocks/' . $block . '/index.asset.php';
+            if (file_exists($asset_file)) {
+                $asset = include $asset_file;
+                wp_enqueue_script(
+                    'agb-' . $block,
+                    AGB_PLUGIN_URL . 'build/blocks/' . $block . '/index.js',
+                    isset($asset['dependencies']) ? $asset['dependencies'] : array('wp-blocks', 'wp-element'),
+                    isset($asset['version']) ? $asset['version'] : AGB_VERSION
+                );
+            }
         }
     }
     
     public function enqueue_frontend_assets() {
-        if ($this->has_agb_blocks()) {
-            wp_enqueue_script(
-                'chartjs',
-                'https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.js',
-                array(),
-                '4.4.0',
-                true
-            );
-            
+        wp_enqueue_script(
+            'chartjs',
+            'https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.js',
+            array(),
+            '4.4.0',
+            true
+        );
+        
+        if (file_exists(AGB_PLUGIN_DIR . 'assets/js/frontend.js')) {
             wp_enqueue_script(
                 'agb-frontend',
                 AGB_PLUGIN_URL . 'assets/js/frontend.js',
@@ -102,117 +69,16 @@ class AdvancedGutenbergBlocks {
                 true
             );
         }
-    }
-    
-    private function has_agb_blocks() {
-        global $post;
-        if (!$post) return false;
-        return has_block('agb/data-visualization', $post);
     }
     
     public function register_block_category($categories) {
-        return array_merge(
+        return array_merge(array(
             array(
-                array(
-                    'slug'  => 'advanced-gutenberg-blocks',
-                    'title' => __('Advanced Blocks', 'advanced-gutenberg-blocks'),
-                    'icon'  => 'chart-bar',
-                ),
-            ),
-            $categories
-        );
+                'slug' => 'advanced-gutenberg-blocks',
+                'title' => 'Advanced Blocks'
+            )
+        ), $categories);
     }
 }
 
-add_action('plugins_loaded', function() {
-    AdvancedGutenbergBlocks::get_instance();
-});
-    
-    public function enqueue_frontend_assets() {
-        if ($this->has_agb_blocks()) {
-            // Load Chart.js from CDN
-            wp_enqueue_script(
-                'chartjs',
-                'https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.js',
-                array(),
-                '4.4.0',
-                true
-            );
-            
-            // Load our frontend script
-            wp_enqueue_script(
-                'agb-frontend',
-                AGB_PLUGIN_URL . 'assets/js/frontend.js',
-                array('chartjs'),
-                AGB_VERSION,
-                true
-            );
-        }
-    }
-    
-    public function enqueue_frontend_assets() {
-        if ($this->has_agb_blocks()) {
-            // Load Chart.js from CDN
-            wp_enqueue_script(
-                'chartjs',
-                'https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.js',
-                array(),
-                '4.4.0',
-                true
-            );
-            
-            // Load our frontend script
-            wp_enqueue_script(
-                'agb-frontend',
-                AGB_PLUGIN_URL . 'assets/js/frontend.js',
-                array('chartjs'),
-                AGB_VERSION,
-                true
-            );
-        }
-    }
-        require_once AGB_PLUGIN_DIR . 'includes/render-callbacks.php';
-    
-    public function register_block_patterns() {
-        if (!function_exists('register_block_pattern')) {
-            return;
-        }
-        
-        // Data dashboard pattern
-        register_block_pattern(
-            'agb/data-dashboard',
-            array(
-                'title' => __('Data Dashboard', 'advanced-gutenberg-blocks'),
-                'description' => __('A complete dashboard with charts and social integration', 'advanced-gutenberg-blocks'),
-                'categories' => array('advanced-gutenberg-blocks'),
-                'content' => '<!-- wp:columns -->
-<div class="wp-block-columns">
-<!-- wp:column {"width":"66.66%"} -->
-<div class="wp-block-column" style="flex-basis:66.66%">
-<!-- wp:agb/data-visualization {"chartType":"bar","title":"Monthly Sales","chartData":[{"label":"Jan","value":65},{"label":"Feb","value":59},{"label":"Mar","value":80}]} /-->
-</div>
-<!-- /wp:column -->
-<!-- wp:column {"width":"33.33%"} -->
-<div class="wp-block-column" style="flex-basis:33.33%">
-<!-- wp:agb/social-integration {"displayType":"follow"} /-->
-</div>
-<!-- /wp:column -->
-</div>
-<!-- /wp:columns -->
-<!-- wp:agb/product-showcase {"layout":"grid","columns":3} /-->',
-                'viewportWidth' => 1200,
-            )
-        );
-        
-        // E-commerce pattern
-        register_block_pattern(
-            'agb/ecommerce-showcase',
-            array(
-                'title' => __('E-commerce Showcase', 'advanced-gutenberg-blocks'),
-                'description' => __('Product showcase with social sharing', 'advanced-gutenberg-blocks'),
-                'categories' => array('advanced-gutenberg-blocks'),
-                'content' => '<!-- wp:agb/product-showcase {"layout":"grid","columns":3,"showPrice":true} /-->
-<!-- wp:agb/social-integration {"displayType":"share","platforms":["twitter","facebook","instagram"]} /-->',
-            )
-        );
-    }
+new AdvancedGutenbergBlocks();
