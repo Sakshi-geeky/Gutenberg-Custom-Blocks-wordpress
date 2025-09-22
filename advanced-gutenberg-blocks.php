@@ -38,6 +38,7 @@ class AdvancedGutenbergBlocks {
         add_action('enqueue_block_assets', array($this, 'enqueue_block_assets'));
         add_action('wp_enqueue_scripts', array($this, 'enqueue_frontend_assets'));
         add_filter('block_categories_all', array($this, 'register_block_category'));
+        add_action("init", array($this, "register_block_patterns"));
     }
     
     public function init() {
@@ -126,3 +127,92 @@ class AdvancedGutenbergBlocks {
 add_action('plugins_loaded', function() {
     AdvancedGutenbergBlocks::get_instance();
 });
+    
+    public function enqueue_frontend_assets() {
+        if ($this->has_agb_blocks()) {
+            // Load Chart.js from CDN
+            wp_enqueue_script(
+                'chartjs',
+                'https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.js',
+                array(),
+                '4.4.0',
+                true
+            );
+            
+            // Load our frontend script
+            wp_enqueue_script(
+                'agb-frontend',
+                AGB_PLUGIN_URL . 'assets/js/frontend.js',
+                array('chartjs'),
+                AGB_VERSION,
+                true
+            );
+        }
+    }
+    
+    public function enqueue_frontend_assets() {
+        if ($this->has_agb_blocks()) {
+            // Load Chart.js from CDN
+            wp_enqueue_script(
+                'chartjs',
+                'https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.js',
+                array(),
+                '4.4.0',
+                true
+            );
+            
+            // Load our frontend script
+            wp_enqueue_script(
+                'agb-frontend',
+                AGB_PLUGIN_URL . 'assets/js/frontend.js',
+                array('chartjs'),
+                AGB_VERSION,
+                true
+            );
+        }
+    }
+        require_once AGB_PLUGIN_DIR . 'includes/render-callbacks.php';
+    
+    public function register_block_patterns() {
+        if (!function_exists('register_block_pattern')) {
+            return;
+        }
+        
+        // Data dashboard pattern
+        register_block_pattern(
+            'agb/data-dashboard',
+            array(
+                'title' => __('Data Dashboard', 'advanced-gutenberg-blocks'),
+                'description' => __('A complete dashboard with charts and social integration', 'advanced-gutenberg-blocks'),
+                'categories' => array('advanced-gutenberg-blocks'),
+                'content' => '<!-- wp:columns -->
+<div class="wp-block-columns">
+<!-- wp:column {"width":"66.66%"} -->
+<div class="wp-block-column" style="flex-basis:66.66%">
+<!-- wp:agb/data-visualization {"chartType":"bar","title":"Monthly Sales","chartData":[{"label":"Jan","value":65},{"label":"Feb","value":59},{"label":"Mar","value":80}]} /-->
+</div>
+<!-- /wp:column -->
+<!-- wp:column {"width":"33.33%"} -->
+<div class="wp-block-column" style="flex-basis:33.33%">
+<!-- wp:agb/social-integration {"displayType":"follow"} /-->
+</div>
+<!-- /wp:column -->
+</div>
+<!-- /wp:columns -->
+<!-- wp:agb/product-showcase {"layout":"grid","columns":3} /-->',
+                'viewportWidth' => 1200,
+            )
+        );
+        
+        // E-commerce pattern
+        register_block_pattern(
+            'agb/ecommerce-showcase',
+            array(
+                'title' => __('E-commerce Showcase', 'advanced-gutenberg-blocks'),
+                'description' => __('Product showcase with social sharing', 'advanced-gutenberg-blocks'),
+                'categories' => array('advanced-gutenberg-blocks'),
+                'content' => '<!-- wp:agb/product-showcase {"layout":"grid","columns":3,"showPrice":true} /-->
+<!-- wp:agb/social-integration {"displayType":"share","platforms":["twitter","facebook","instagram"]} /-->',
+            )
+        );
+    }
