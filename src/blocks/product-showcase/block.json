@@ -1,0 +1,48 @@
+{
+    "$schema": "https://schemas.wp.org/trunk/block.json",
+    "apiVersion": 3,
+    "name": "agb/product-showcase",
+    "title": "Product Showcase",
+    "category": "advanced-gutenberg-blocks",
+    "icon": "products",
+    "description": "Display WooCommerce products in customizable grid, carousel, or list layouts",
+    "keywords": ["product", "woocommerce", "ecommerce", "shop"],
+    "textdomain": "advanced-gutenberg-blocks",
+    "supports": {
+        "html": false,
+        "align": ["wide", "full"]
+    },
+    "attributes": {
+        "layout": {
+            "type": "string",
+            "default": "grid"
+        },
+        "columns": {
+            "type": "number",
+            "default": 3
+        },
+        "showPrice": {
+            "type": "boolean",
+            "default": true
+        },
+        "showRating": {
+            "type": "boolean",
+            "default": true
+        },
+        "showAddToCart": {
+            "type": "boolean",
+            "default": false
+        },
+        "categoryFilter": {
+            "type": "string",
+            "default": ""
+        },
+        "productLimit": {
+            "type": "number",
+            "default": 6
+        }
+    },
+    "editorScript": "file:./index.js",
+    "editorStyle": "file:./index.css",
+    "style": "file:./style-index.css"
+}
