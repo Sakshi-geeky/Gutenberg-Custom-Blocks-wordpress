@@ -108,3 +108,58 @@ class AdvancedGutenbergBlocks {
 add_action('plugins_loaded', function() {
     AdvancedGutenbergBlocks::get_instance();
 });
+
+    public function enqueue_frontend_assets() {
+        if ($this->has_agb_blocks()) {
+            wp_enqueue_script(
+                'chartjs',
+                'https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.js',
+                array(),
+                '4.4.0',
+                true
+            );
+            
+            wp_enqueue_script(
+                'agb-frontend',
+                AGB_PLUGIN_URL . 'assets/js/frontend.js',
+                array('chartjs'),
+                AGB_VERSION,
+                true
+            );
+        }
+    }
+    
+    private function has_agb_blocks() {
+        global $post;
+        if (!$post) return false;
+        return has_block('agb/data-visualization', $post);
+    }
+}
+
+// Update constructor to include frontend assets
+    
+    public function enqueue_frontend_assets() {
+        if ($this->has_agb_blocks()) {
+            wp_enqueue_script(
+                'chartjs',
+                'https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.js',
+                array(),
+                '4.4.0',
+                true
+            );
+            
+            wp_enqueue_script(
+                'agb-frontend',
+                AGB_PLUGIN_URL . 'assets/js/frontend.js',
+                array('chartjs'),
+                AGB_VERSION,
+                true
+            );
+        }
+    }
+    
+    private function has_agb_blocks() {
+        global $post;
+        if (!$post) return false;
+        return has_block('agb/data-visualization', $post);
+    }

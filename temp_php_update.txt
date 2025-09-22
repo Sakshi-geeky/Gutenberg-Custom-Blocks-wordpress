@@ -1,0 +1,7 @@
+    private function __construct() {
+        add_action('init', array($this, 'init'));
+        add_action('enqueue_block_editor_assets', array($this, 'enqueue_editor_assets'));
+        add_action('enqueue_block_assets', array($this, 'enqueue_block_assets'));
+        add_action('wp_enqueue_scripts', array($this, 'enqueue_frontend_assets'));
+        add_filter('block_categories_all', array($this, 'register_block_category'));
+    }
