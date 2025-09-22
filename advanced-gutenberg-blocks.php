@@ -41,7 +41,7 @@ class AdvancedGutenbergBlocks {
     }
     
     public function init() {
-        $blocks = array('data-visualization', 'product-showcase');
+        $blocks = array('data-visualization', 'product-showcase', 'social-integration');
         
         foreach ($blocks as $block) {
             $block_path = AGB_PLUGIN_DIR . 'build/blocks/' . $block;

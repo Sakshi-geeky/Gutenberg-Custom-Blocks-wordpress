@@ -1,0 +1,53 @@
+{
+  "$schema": "https://schemas.wp.org/trunk/block.json",
+  "apiVersion": 3,
+  "name": "agb/social-integration",
+  "title": "Social Integration",
+  "category": "advanced-gutenberg-blocks",
+  "icon": "share",
+  "description": "Add social media share buttons and social feeds integration",
+  "keywords": [
+    "social",
+    "share",
+    "twitter",
+    "facebook",
+    "instagram"
+  ],
+  "textdomain": "advanced-gutenberg-blocks",
+  "supports": {
+    "html": false,
+    "align": [
+      "wide",
+      "full"
+    ]
+  },
+  "attributes": {
+    "displayType": {
+      "type": "string",
+      "default": "share"
+    },
+    "platforms": {
+      "type": "array",
+      "default": [
+        "twitter",
+        "facebook",
+        "linkedin"
+      ]
+    },
+    "showLabels": {
+      "type": "boolean",
+      "default": true
+    },
+    "style": {
+      "type": "string",
+      "default": "buttons"
+    },
+    "shareText": {
+      "type": "string",
+      "default": ""
+    }
+  },
+  "editorScript": "file:./index.js",
+  "editorStyle": "file:./index.css",
+  "style": "file:./style-index.css"
+}
