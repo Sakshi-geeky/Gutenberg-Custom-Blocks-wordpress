@@ -1,0 +1,26 @@
+{
+  "name": "advanced-gutenberg-blocks",
+  "version": "1.0.0",
+  "description": "Professional WordPress Gutenberg blocks suite with data visualization, e-commerce, and social features",
+  "main": "build/index.js",
+  "scripts": {
+    "build": "wp-scripts build",
+    "start": "wp-scripts start",
+    "lint:css": "wp-scripts lint-style",
+    "lint:js": "wp-scripts lint-js"
+  },
+  "dependencies": {
+    "@wordpress/block-editor": "^12.15.0",
+    "@wordpress/blocks": "^12.24.0",
+    "@wordpress/components": "^25.13.0",
+    "@wordpress/data": "^9.17.0",
+    "@wordpress/element": "^5.24.0",
+    "@wordpress/i18n": "^4.47.0",
+    "chart.js": "^4.4.0",
+    "react-chartjs-2": "^5.2.0",
+    "classnames": "^2.3.2"
+  },
+  "devDependencies": {
+    "@wordpress/scripts": "^26.18.0"
+  }
+}
