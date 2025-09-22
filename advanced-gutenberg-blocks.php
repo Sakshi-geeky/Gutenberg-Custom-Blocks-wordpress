@@ -36,6 +36,7 @@ class AdvancedGutenbergBlocks {
         add_action('init', array($this, 'init'));
         add_action('enqueue_block_editor_assets', array($this, 'enqueue_editor_assets'));
         add_action('enqueue_block_assets', array($this, 'enqueue_block_assets'));
+        add_action('wp_enqueue_scripts', array($this, 'enqueue_frontend_assets'));
         add_filter('block_categories_all', array($this, 'register_block_category'));
     }
     
@@ -51,7 +52,7 @@ class AdvancedGutenbergBlocks {
     }
     
     public function enqueue_editor_assets() {
-        $asset_file = AGB_PLUGIN_DIR . 'build/index.asset.php';
+        $asset_file = AGB_PLUGIN_DIR . 'build/blocks/data-visualization/index.asset.php';
         
         if (file_exists($asset_file)) {
             $asset = include $asset_file;
@@ -64,20 +65,11 @@ class AdvancedGutenbergBlocks {
         
         wp_enqueue_script(
             'agb-editor-script',
-            AGB_PLUGIN_URL . 'build/index.js',
+            AGB_PLUGIN_URL . 'build/blocks/data-visualization/index.js',
             $asset['dependencies'],
             $asset['version'],
             true
         );
-        
-        if (file_exists(AGB_PLUGIN_DIR . 'build/index.css')) {
-            wp_enqueue_style(
-                'agb-editor-style',
-                AGB_PLUGIN_URL . 'build/index.css',
-                array('wp-edit-blocks'),
-                $asset['version']
-            );
-        }
     }
     
     public function enqueue_block_assets() {
@@ -89,6 +81,32 @@ class AdvancedGutenbergBlocks {
                 AGB_VERSION
             );
         }
+    }
+    
+    public function enqueue_frontend_assets() {
+        if ($this->has_agb_blocks()) {
+            wp_enqueue_script(
+                'chartjs',
+                'https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.js',
+                array(),
+                '4.4.0',
+                true
+            );
+            
+            wp_enqueue_script(
+                'agb-frontend',
+                AGB_PLUGIN_URL . 'assets/js/frontend.js',
+                array('chartjs'),
+                AGB_VERSION,
+                true
+            );
+        }
+    }
+    
+    private function has_agb_blocks() {
+        global $post;
+        if (!$post) return false;
+        return has_block('agb/data-visualization', $post);
     }
     
     public function register_block_category($categories) {
@@ -108,58 +126,3 @@ class AdvancedGutenbergBlocks {
 add_action('plugins_loaded', function() {
     AdvancedGutenbergBlocks::get_instance();
 });
-
-    public function enqueue_frontend_assets() {
-        if ($this->has_agb_blocks()) {
-            wp_enqueue_script(
-                'chartjs',
-                'https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.js',
-                array(),
-                '4.4.0',
-                true
-            );
-            
-            wp_enqueue_script(
-                'agb-frontend',
-                AGB_PLUGIN_URL . 'assets/js/frontend.js',
-                array('chartjs'),
-                AGB_VERSION,
-                true
-            );
-        }
-    }
-    
-    private function has_agb_blocks() {
-        global $post;
-        if (!$post) return false;
-        return has_block('agb/data-visualization', $post);
-    }
-}
-
-// Update constructor to include frontend assets
-    
-    public function enqueue_frontend_assets() {
-        if ($this->has_agb_blocks()) {
-            wp_enqueue_script(
-                'chartjs',
-                'https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.js',
-                array(),
-                '4.4.0',
-                true
-            );
-            
-            wp_enqueue_script(
-                'agb-frontend',
-                AGB_PLUGIN_URL . 'assets/js/frontend.js',
-                array('chartjs'),
-                AGB_VERSION,
-                true
-            );
-        }
-    }
-    
-    private function has_agb_blocks() {
-        global $post;
-        if (!$post) return false;
-        return has_block('agb/data-visualization', $post);
-    }

@@ -3,7 +3,7 @@ document.addEventListener('DOMContentLoaded', function() {
     
     chartContainers.forEach(container => {
         const canvas = container.querySelector('.agb-chart-canvas');
-        if (!canvas) return;
+        if (!canvas || !window.Chart) return;
         
         const chartType = container.dataset.chartType || 'bar';
         const chartDataRaw = container.dataset.chartData;
@@ -13,7 +13,6 @@ document.addEventListener('DOMContentLoaded', function() {
         try {
             chartData = JSON.parse(chartDataRaw || '[]');
         } catch (e) {
-            console.error('Invalid chart data:', e);
             return;
         }
         
@@ -26,23 +25,19 @@ document.addEventListener('DOMContentLoaded', function() {
             'rgba(255, 99, 132, 0.8)', 
             'rgba(255, 205, 86, 0.8)',
             'rgba(75, 192, 192, 0.8)',
-            'rgba(153, 102, 255, 0.8)',
-            'rgba(255, 159, 64, 0.8)'
+            'rgba(153, 102, 255, 0.8)'
         ];
         
-        const borderColors = colors.map(color => color.replace('0.8', '1'));
-        
-        const config = {
+        new Chart(ctx, {
             type: chartType,
             data: {
                 labels: chartData.map(item => item.label),
                 datasets: [{
                     label: title || 'Dataset',
                     data: chartData.map(item => item.value),
-                    backgroundColor: colors.slice(0, chartData.length),
-                    borderColor: borderColors.slice(0, chartData.length),
-                    borderWidth: 2,
-                    tension: chartType === 'line' ? 0.4 : 0
+                    backgroundColor: colors,
+                    borderColor: colors.map(c => c.replace('0.8', '1')),
+                    borderWidth: 2
                 }]
             },
             options: {
@@ -51,40 +46,10 @@ document.addEventListener('DOMContentLoaded', function() {
                 plugins: {
                     title: {
                         display: !!title,
-                        text: title,
-                        font: { size: 16, weight: 'bold' }
-                    },
-                    legend: {
-                        display: true,
-                        position: 'top'
-                    },
-                    tooltip: {
-                        backgroundColor: 'rgba(0, 0, 0, 0.8)',
-                        titleColor: '#fff',
-                        bodyColor: '#fff',
-                        cornerRadius: 6
+                        text: title
                     }
-                },
-                scales: chartType !== 'pie' && chartType !== 'doughnut' ? {
-                    y: {
-                        beginAtZero: true,
-                        grid: { color: 'rgba(0, 0, 0, 0.1)' }
-                    },
-                    x: {
-                        grid: { color: 'rgba(0, 0, 0, 0.1)' }
-                    }
-                } : {},
-                animation: {
-                    duration: 1000,
-                    easing: 'easeInOutQuart'
-                },
-                interaction: {
-                    intersect: false,
-                    mode: 'index'
                 }
             }
-        };
-        
-        new Chart(ctx, config);
+        });
     });
 });
